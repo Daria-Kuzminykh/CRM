@@ -34,8 +34,10 @@
     "gulp-htmlmin": "^5.0.1",
     "gulp-image": "^6.2.1",
     "gulp-notify": "^3.2.0",
+    "gulp-sass": "^4.1.0",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-svg-sprite": "^1.5.0",
-    "gulp-uglify-es": "^2.0.0"
+    "gulp-uglify-es": "^2.0.0",
+    "node-sass": "^6.0.0"
   }
 }

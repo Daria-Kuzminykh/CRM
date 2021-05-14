@@ -1,0 +1,38 @@
+@mixin flexAlignItems {
+  display: flex;
+  align-items: center;
+}
+@mixin styleReset {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  list-style: none;
+}
+@mixin arrow {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  display: block;
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-image: url("../img/arrow.svg");
+}
+@mixin btn {
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+}
+@mixin flexColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+@mixin beforeAfter {
+  content: '';
+  display: block;
+  position: absolute;
+}
