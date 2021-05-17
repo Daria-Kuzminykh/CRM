@@ -1,3 +1,4 @@
+@import "var";
 @mixin flexAlignItems {
   display: flex;
   align-items: center;
@@ -35,4 +36,52 @@
   content: '';
   display: block;
   position: absolute;
+}
+@mixin contactItemBorder {
+  border: 1px solid $colorGray;
+}
+@mixin afterArrow {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-left: 1px solid;
+  border-top: 1px solid;
+  transform: rotate(-135deg);
+}
+@mixin btnIcon {
+  left: 0;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+@mixin tooltip {
+  position: absolute;
+  top: -40px;
+  left: 8px;
+  transform: translateX(-50%) scaleX(0.0001);
+  transform-origin: center;
+  padding: 6px 17px;
+  background-color: rgba(0, 0, 0, .7);
+  transition: all .3s ease-in-out;
+  opacity: 0;
+  &::before {
+    @include beforeAfter();
+    bottom: -5.5px;
+    left: 50%;
+    transform: translateX(-4px);
+    width: 8px;
+    height: 6px;
+    background-color: rgba(0, 0, 0, .7);
+    clip-path: polygon(49% 100%, 0 0, 100% 0);
+  }
+}
+@mixin bigButton {
+  margin-bottom: 20px;
+  padding: 12.5px 35px;
+  height: 44px;
+  background-color: $colorMain;
+  color: white;
 }

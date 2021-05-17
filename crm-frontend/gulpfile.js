@@ -74,7 +74,8 @@ const watchFiles = () => {
     browserSync.init({
         server: {
             baseDir: 'dist'
-        }
+        },
+        port: 8000,
     })
 }
 
