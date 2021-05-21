@@ -1,0 +1,235 @@
+@import "var";
+@import "mixin";
+
+.contacts {
+  position: relative;
+  margin-bottom: 25px;
+  padding: 9px 0;
+  width: 100%;
+  background-color: $backColor;
+  &__list {
+    @include styleReset();
+  }
+  &__item {
+    position: relative;
+    margin-bottom: 15px;
+    &:last-child {
+      margin-bottom: 25px;
+    }
+    width: 100%;
+    height: 37px;
+    @include contactItemBorder();
+  }
+  &__name {
+    @include btn();
+    position: relative;
+    padding-left: 12px;
+    width: 123px;
+    height: 100%;
+    background-color: $colorGrayMiddle;
+    text-align: left;
+    color: $textColorBlack;
+    border-right: 1px solid $colorGray;
+    &::after {
+      @include afterArrow();
+      top: 12px;
+      left: 104px;
+      border-color: $colorMain;
+    }
+    &--active {
+      &::after {
+        @include afterArrow();
+        top: 15px;
+        left: 104px;
+        border-color: $colorMain;
+        transform: rotate(45deg);
+      }
+    }
+  }
+  &__dropdown {
+    @include contactItemBorder();
+    @include styleReset();
+    position: absolute;
+    bottom: -129px;
+    left: -1px;
+    z-index: 7;
+    width: 124px;
+    background-color: $colorGrayLight;
+    transform: scaleY(0.000001);
+    transform-origin: top;
+    transition: transform .3s ease-in-out;
+    &--active {
+      transform: none;
+    }
+  }
+  &__input {
+    padding-left: 12px;
+    min-width: 238px;
+    height: 100%;
+    border: none;
+    background-color: transparent;
+    &:focus {
+      outline: none;
+    }
+  }
+  &__btn-close {
+    @include btn();
+    @include styleReset();
+    position: relative;
+    width: 27px;
+    height: 100%;
+    background-color: $colorGrayMiddle;
+    background-image: url("../img/cancel.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    border-left: 1px solid $colorGray;
+    transform: translateY(-5px);
+    &:hover {
+      background-image: url("../img/cancel-red.svg");
+      outline: 1px solid $colorRed;
+    }
+    &:hover > div {
+      opacity: 1;
+      transform: translateX(-50%) scaleX(1);
+    }
+  }
+  &__btn {
+    @include btn();
+    @include styleReset();
+    position: relative;
+    left: 50%;
+    padding-left: 19px;
+    background-image: url("../img/add_circle_outline.svg");
+    background-repeat: no-repeat;
+    background-position: left center;
+    transform: translateX(-50%);
+    transition: color .2s ease-in-out;
+    &:disabled {
+      display: none;
+    }
+    &:hover {
+      color: $colorMain;
+    }
+  }
+  &::after {
+    @include beforeAfter();
+    left: -30px;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    background-color: $backColor;
+  }
+  &::before {
+    @include beforeAfter();
+    right: -30px;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    background-color: $backColor;
+  }
+  &--big-padding {
+    padding: 25px 0;
+  }
+  &__tooltip {
+    @include tooltip();
+    color: white;
+    font-size: 12px;
+  }
+}
+
+.column-contacts {
+  &__list {
+    @include styleReset();
+    display: flex;
+    flex-wrap: wrap;
+  }
+  &__icon {
+    position: relative;
+    margin-right: 7px;
+    width: 16px;
+    height: 16px;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    &:nth-child(5) {
+      margin-bottom: 7px;
+    }
+
+    &:hover > div {
+      opacity: 1;
+      transform: translateX(-50%) scaleX(1);
+    }
+  }
+  &__vk-icon {
+    background-image: url("../img/vk.svg");
+  }
+  &__fb-icon {
+    background-image: url("../img/fb.svg");
+  }
+  &__mail-icon {
+    background-image: url("../img/mail.svg");
+  }
+  &__tel-icon {
+    background-image: url("../img/phone.svg");
+  }
+  &__other-icon {
+    background-image: url("../img/Subtract.svg");
+  }
+  &__tooltip {
+    @include tooltip();
+    z-index: 3;
+  }
+  &__type {
+    margin-right: 3px;
+    font-size: 12px;
+    color: #fff;
+  }
+  &__link {
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+  }
+}
+
+@media (max-width: $media768) {
+  .column-contacts__icon {
+    &:nth-child(5n) {
+      margin-right: 0;
+    }
+  }
+}
+
+@media (max-width: $media320) {
+  .contacts {
+    &::before {
+      right: -15px;
+      width: 15px;
+    }
+    &::after {
+      left: -15px;
+      width: 15px;
+    }
+    &__list {
+      margin: 0 auto;
+      max-width: 390px;
+    }
+    &__name {
+      width: 105px;
+      &::after {
+        left: 88px;
+      }
+    }
+    &__dropdown {
+      width: 106px;
+    }
+    &__input {
+      padding-left: 6px;
+      width: calc(100% - 105px - 25px);
+      min-width: 128px;
+    }
+    &__btn-close {
+      width: 25px;
+    }
+  }
+}

@@ -1,4 +1,4 @@
-export function onSave({ name, surname, lastName, contacts }) {
+export function onSave({ name, surname, lastName, contacts }, id = '') {
     return fetch('http://localhost:3000/api/clients', {
         method: 'POST',
         body: JSON.stringify({
@@ -13,7 +13,7 @@ export function onSave({ name, surname, lastName, contacts }) {
     }).then(res => res.json());
 };
 
-export function loadingData() {
+export function fetchData() {
     return fetch('http://localhost:3000/api/clients').then(res => res.json());
 }
 export function onDelete(id, element) {

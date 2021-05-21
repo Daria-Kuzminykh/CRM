@@ -1,10 +1,15 @@
 const container = document.querySelector('.app-container');
 
-// export function createTableClients(clients) {
-//
-// }
+function cleanTable() {
+    const table = document.querySelector('.table');
+    table.querySelectorAll('.table__client').forEach(el => {
+        if (el) {
+            el.remove();
+        };
+    });
+}
 
-export function createHeader(onSearch) {
+export function createHeader(onSearch, createTable) {
     const header = document.createElement('header');
     const logo = document.createElement('img');
     const search = document.createElement('input');
@@ -16,40 +21,45 @@ export function createHeader(onSearch) {
     logo.src = 'img/logo.svg';
     search.placeholder = 'Введите запрос';
 
-    // search.addEventListener('input', () => {
-    //     clearTimeout();
-    //     setTimeout(() => {
-    //         onSearch(search.value).then()
-    //     }, 300);
-    // });
+    let timerId;
+    search.addEventListener('input', () => {
+        clearTimeout(timerId);
+         timerId = setTimeout(() => {
+            cleanTable();
+            loadingAnimated();
+            onSearch(search.value).then(clientData => {
+                cleanTable();
+                loadingRemove();
+                createTable(clientData);
+            });
+        }, 300);
+    });
 
     header.append(logo);
     header.append(search);
     container.append(header);
-
-    return search;
 }
 
 export function createBodyApp() {
     const bodyApp = document.createElement('div');
     const title = document.createElement('h2');
+    const containerForMobil = document.createElement('div');
 
     bodyApp.classList.add('container');
     title.classList.add('title');
-
+    containerForMobil.classList.add('mobil-box');
     title.textContent = 'Клиенты';
 
     const table = createTable();
-    const loading = loadingAnimated();
+
     bodyApp.append(title);
-    bodyApp.append(table.table);
-    bodyApp.append(loading);
+    bodyApp.append(containerForMobil);
+    containerForMobil.append(table.table);
     container.append(bodyApp);
 
     return {
-        table,
         bodyApp,
-        loading
+        table
     };
 }
 
@@ -101,6 +111,8 @@ function createColumnClient(name, columnClass, tr) {
 }
 
 function loadingAnimated() {
+    const container = document.querySelector('.container');
+    const btn = document.querySelector('.add-btn');
     const block = document.createElement('div');
     const loading = document.createElement('div');
 
@@ -109,23 +121,31 @@ function loadingAnimated() {
 
     block.append(loading);
 
-    return block;
+    if (btn) {
+        container.insertBefore(block, btn);
+    } else {
+        container.append(block);
+    };
 }
 
-export function createAddButton(onSave, onDelete, onChange, fetchDataClient) {
+export function loadingRemove() {
+    document.querySelector('.loading-block').remove();
+}
+
+export function createAddButton(onSave, fetchData, createTableClient) {
     const button = document.createElement('button');
     button.classList.add('add-btn');
     button.textContent = 'Добавить клиента';
 
     button.addEventListener('click', () => {
-        createModalNewClient(onSave, onDelete, onChange, fetchDataClient);
-    })
+        createModalNewClient(onSave, fetchData, createTableClient);
+    });
 
     return button;
 }
 
 function modalRemove(modalElement, modalOverflow) {
-    modalElement.classList.add('animated-reverse');
+    modalElement.classList.add('animated-modal-block');
     modalOverflow.classList.add('animated-reverse');
     setTimeout(() => { modalElement.remove(); modalOverflow.remove(); }, 400);
 }
@@ -145,15 +165,13 @@ function createModal(titleName, btnName) {
 
     title.textContent = titleName;
     bottomButton.textContent = btnName;
+    modal.style.top = `${150 + pageYOffset}px`;
 
     closeButton.addEventListener('click', () => {
         modalRemove(modal, overflow);
     });
     bottomButton.addEventListener('click', () => {
         modalRemove(modal, overflow);
-        // if (btnName === 'Удалить клиента') {
-        //     createModalDeleteClient();
-        // };
     })
     modal.addEventListener('click', event => {
         event._CLOSE_MODAL = true;
@@ -173,11 +191,12 @@ function createModal(titleName, btnName) {
     return {
         modal,
         overflow,
-        bottomButton
+        bottomButton,
+        title
     };
 }
 
-function createForm(modalBlock, modalOverflow, onSave, markerAction, idClient = '', stringClient = null, onDelete, onChange, fetchDataClient) {
+function createForm(modalBlock, modalOverflow, onSave, idClient, fetchData, createTableClient) {
     const form = document.createElement('form');
     const inputName = document.createElement('input');
     const inputSurname = document.createElement('input');
@@ -186,6 +205,9 @@ function createForm(modalBlock, modalOverflow, onSave, markerAction, idClient = 
     const contactList = document.createElement('ul');
     const addContact = document.createElement('button');
     const saveButton = document.createElement('button');
+    const formOverflow = document.createElement('div');
+    const message = document.createElement('p');
+    let error = '';
 
     form.classList.add('form');
     inputName.classList.add('form__input');
@@ -195,6 +217,8 @@ function createForm(modalBlock, modalOverflow, onSave, markerAction, idClient = 
     contactList.classList.add('contacts__list');
     addContact.classList.add('contacts__btn');
     saveButton.classList.add('form__btn');
+    formOverflow.classList.add('modal-block__overflow');
+    message.classList.add('error-message');
 
     inputSurname.placeholder = 'Фамилия*';
     inputName.placeholder = 'Имя*';
@@ -204,8 +228,9 @@ function createForm(modalBlock, modalOverflow, onSave, markerAction, idClient = 
 
     addContact.addEventListener('click', (e) => {
         e.preventDefault();
-        createContact(contactList);
+        createContact(contactList, addContact);
         contacts.classList.add('contacts--big-padding');
+        counterContactInForm(addContact);
     });
 
     inputSurname.addEventListener('input', () => {
@@ -213,6 +238,7 @@ function createForm(modalBlock, modalOverflow, onSave, markerAction, idClient = 
         if (!topText) {
             createTopPlaceholder('Фамилия*', form, inputSurname, 'input-surname');
         };
+        if (inputSurname.classList.contains('input-not-valid')) inputSurname.classList.remove('input-not-valid');
     });
 
     inputName.addEventListener('input', () => {
@@ -220,6 +246,7 @@ function createForm(modalBlock, modalOverflow, onSave, markerAction, idClient = 
         if (!topText) {
             createTopPlaceholder('Имя*', form, inputName, 'input-name');
         };
+        if (inputName.classList.contains('input-not-valid')) inputName.classList.remove('input-not-valid');
     });
 
     inputMiddleName.addEventListener('input', () => {
@@ -229,12 +256,12 @@ function createForm(modalBlock, modalOverflow, onSave, markerAction, idClient = 
         };
     });
 
-    saveButton.addEventListener('click', async event => {
+    saveButton.addEventListener('click', event => {
         event.preventDefault();
         const client = {
-            name: inputName.value,
-            surname: inputSurname.value,
-            lastName: inputMiddleName.value,
+            name: inputName.value.substr(0, 1).toUpperCase() + inputName.value.substr(1).toLowerCase(),
+            surname: inputSurname.value.substr(0, 1).toUpperCase() + inputSurname.value.substr(1).toLowerCase(),
+            lastName: inputMiddleName.value.substr(0, 1).toUpperCase() + inputMiddleName.value.substr(1).toLowerCase(),
             contacts: [],
         };
         document.querySelectorAll('.contacts__item').forEach(el => {
@@ -247,15 +274,34 @@ function createForm(modalBlock, modalOverflow, onSave, markerAction, idClient = 
             client.contacts.push(contact);
         });
 
-        if (markerAction === 'save') {
-            const dataClient = await onSave(client);
-            createStringClient(dataClient, onDelete, onChange, fetchDataClient);
-        } else {
-            const dataClient = await onSave(client, idClient);
-            changeStringClient(dataClient, stringClient);
+        if (!inputSurname.value.trim()) {
+            error = error + 'Поле "Фамилия" обязательно для заполнения. ';
+            inputSurname.classList.add('input-not-valid');
+        };
+        if (!inputName.value.trim()) {
+            error = error + 'Поле "Имя" обязательно для заполнения. ';
+            inputName.classList.add('input-not-valid');
+        };
+        if (client.contacts.some(el => !el.value)) {
+            error = error + 'Добавленные контакты обязательны для заполнения. ';
         };
 
-        modalRemove(modalBlock, modalOverflow);
+        if (!error) {
+            modalBlock.append(formOverflow);
+            saveButton.classList.add('form__btn--loading');
+            onSave(client, idClient).then(() => fetchData()).then(dataClient => {
+                cleanTable();
+                createTableClient(dataClient);
+                saveButton.classList.remove('form__btn--loading');
+                modalRemove(modalBlock, modalOverflow);
+            });
+        } else {
+            const lastMessage = form.querySelector('.error-message');
+            if (lastMessage) lastMessage.remove();
+            message.textContent = error;
+            form.insertBefore(message, saveButton);
+            error = '';
+        };
     });
 
     form.append(inputSurname);
@@ -267,24 +313,42 @@ function createForm(modalBlock, modalOverflow, onSave, markerAction, idClient = 
     contacts.append(addContact);
     modalBlock.append(form);
 
+
     return {
         inputName,
         inputSurname,
         inputMiddleName,
         contactList,
         form,
-        contacts
+        contacts,
+        addContact
     }
 }
 
-function createModalNewClient(save, onDelete, onChange, fetchDataClient) {
-    const modal = createModal('Новый клиент', 'Отмена');
-    createForm(modal.modal, modal.overflow, save, 'save', '', null, onDelete, onChange, fetchDataClient);
+function counterContactInForm(btn) {
+    let count = 0;
+    document.querySelectorAll('.contacts__item').forEach(() => {
+        count++
+    });
+    if (count === 10) {
+        btn.disabled = true
+    } else btn.disabled = false;
 }
 
-function createModalChangeClient({ name, surname, lastName, contacts, createdAt, updatedAt, id }, onDelete, element, onChange) {
+function createModalNewClient(save, fetchData, createTableClient) {
+    const modal = createModal('Новый клиент', 'Отмена');
+    createForm(modal.modal, modal.overflow, save, '', fetchData, createTableClient);
+}
+
+function createModalChangeClient({ name, surname, lastName, contacts, createdAt, updatedAt, id }, onDelete, element, onChange, fetchData, createTableClient) {
     const modal = createModal('Изменить данные', 'Удалить клиента');
-    const form = createForm(modal.modal, modal.overflow, onChange, 'change', id, element);
+    const form = createForm(modal.modal, modal.overflow, onChange, id, fetchData, createTableClient);
+
+    const idElement = document.createElement('span');
+    idElement.classList.add('modal-block__id');
+    idElement.textContent = `ID: ${id}`;
+    modal.title.style.display = 'inline-block';
+    modal.modal.insertBefore(idElement, form.form);
 
     form.inputName.value = name;
     form.inputSurname.value = surname;
@@ -297,7 +361,7 @@ function createModalChangeClient({ name, surname, lastName, contacts, createdAt,
 
     for (let contact of contacts) {
         form.contacts.classList.add('contacts--big-padding');
-        const contactElement = createContact(form.contactList);
+        const contactElement = createContact(form.contactList, form.addContact);
         contactElement.contactName.textContent = contact.type;
         contactElement.inputContact.value = contact.value;
 
@@ -322,9 +386,10 @@ function createModalChangeClient({ name, surname, lastName, contacts, createdAt,
         });
     };
 
+    counterContactInForm(form.addContact);
+
     modal.bottomButton.addEventListener('click', event => {
-        event.preventDefault();
-        createModalDeleteClient(onDelete, id, element);
+        setTimeout(() => { createModalDeleteClient(onDelete, id, element) }, 500);
     });
 }
 
@@ -346,15 +411,15 @@ function createModalDeleteClient(onDelete, id, element) {
 
     modal.modal.append(text);
     modal.modal.append(delButton);
-
 }
 
-function createContact(list) {
+function createContact(list, btn) {
     const contactItem = document.createElement('li');
     const contactName = document.createElement('button');
     const listDropdown = document.createElement('ul');
     const inputContact = document.createElement('input');
     const closeButton = document.createElement('button');
+    const tooltip = document.createElement('div');
     const names = ['Email', 'VK', 'Facebook', 'Другое'];
     for (let i of names) {
         const li = document.createElement('li');
@@ -374,9 +439,12 @@ function createContact(list) {
     listDropdown.classList.add('contacts__dropdown');
     inputContact.classList.add('contacts__input');
     closeButton.classList.add('contacts__btn-close');
+    tooltip.classList.add('contacts__tooltip');
 
     contactName.textContent = 'Телефон';
+    tooltip.textContent = 'Удалить контакт';
     inputContact.placeholder = 'Введите данные контакта';
+    if (window.innerWidth < 485) inputContact.placeholder = 'Введите данные';
 
     contactName.addEventListener('click', event => {
         event.preventDefault();
@@ -385,10 +453,12 @@ function createContact(list) {
     closeButton.addEventListener('click', event => {
         event.preventDefault();
         contactItem.remove();
+        counterContactInForm(btn);
     });
 
     contactItem.append(contactName);
     contactItem.append(inputContact);
+    closeButton.append(tooltip);
     contactItem.append(closeButton);
     contactItem.append(listDropdown);
     list.append(contactItem);
@@ -423,26 +493,22 @@ function createTopPlaceholder(name, block, input, id) {
     });
 }
 
-export function createStringClient({ name, surname, lastName, contacts, createdAt, updatedAt, id }, onClickDel, onClickChange, fetchData) {
-    const table = document.querySelector('.table')
+export function createStringClient({ name, surname, lastName, contacts, createdAt, updatedAt, id }, { onDelete, onChange, fetchData, fetchDataClient }, createTableClient) {
+    const table = document.querySelector('.table');
     const stringClient = document.createElement('tr');
 
     stringClient.classList.add('table__client');
 
-    const clientId = id.substr(8);
+    const clientId = id.substr(6);
     const clientFullName = surname + ' ' + name + ' ' + lastName;
-    const dateYear = createdAt.substr(0, 4);
-    const dateDay = createdAt.substr(8, 2);
-    const dateMonth = createdAt.substr(5, 2);
-    const date = dateDay + '.' + dateMonth + '.' + dateYear;
-    const createTime = createdAt.substr(11, 5);
 
-    const updatedClient = editUpdatedClient(updatedAt);
+    const createdClient = editDateClient(createdAt);
+    const updatedClient = editDateClient(updatedAt);
 
     const idClient = createColumnClient(clientId, 'column-client__id', stringClient);
     const fullNameClient = createColumnClient(clientFullName, 'column-client__fullname', stringClient);
-    const dateClient = createColumnClient(date, 'column-client__date', stringClient);
-    const lastChangeClient = createColumnClient(updatedClient.update, 'column-client__last-change', stringClient);
+    const dateClient = createColumnClient(createdClient.date, 'column-client__date', stringClient);
+    const lastChangeClient = createColumnClient(updatedClient.date, 'column-client__last-change', stringClient);
     const contactClient = createColumnClient('', 'column-client__contact', stringClient);
     const actionClient = createColumnClient('', 'column-client__action', stringClient);
 
@@ -450,8 +516,8 @@ export function createStringClient({ name, surname, lastName, contacts, createdA
     const spanChangeTime = document.createElement('span');
     spanCreateTime.classList.add('column-client__date--time');
     spanChangeTime.classList.add('column-client__date--time', 'column-client__last-change--time');
-    spanCreateTime.textContent = createTime;
-    spanChangeTime.textContent = updatedClient.updateTime;
+    spanCreateTime.textContent = createdClient.dateTime;
+    spanChangeTime.textContent = updatedClient.dateTime;
     dateClient.append(spanCreateTime);
     lastChangeClient.append(spanChangeTime);
 
@@ -465,14 +531,16 @@ export function createStringClient({ name, surname, lastName, contacts, createdA
     actionClient.append(deleteButton);
 
     deleteButton.addEventListener('click', event => {
-        event.preventDefault();
-        createModalDeleteClient(onClickDel, id, stringClient)
+        deleteButton.classList.add('column-client__btn-del--loading');
+        createModalDeleteClient(onDelete, id, stringClient);
+        deleteButton.classList.remove('column-client__btn-del--loading');
     });
 
     changeButton.addEventListener('click', event => {
-        event.preventDefault();
-        fetchData(id).then(client => {
-            createModalChangeClient(client, onClickDel, stringClient, onClickChange);
+        changeButton.classList.add('column-client__btn-change--loading');
+        fetchDataClient(id).then(client => {
+            changeButton.classList.remove('column-client__btn-change--loading');
+            createModalChangeClient(client, onDelete, stringClient, onChange, fetchData, createTableClient);
         });
     });
 
@@ -486,28 +554,12 @@ export function createStringClient({ name, surname, lastName, contacts, createdA
     table.append(stringClient);
 }
 
-function changeStringClient({ name, surname, lastName, updatedAt, contacts }, element) {
-    element.querySelector('.column-client__fullname').textContent = surname + ' ' + name + ' ' + lastName;
-
-    const updatedClient = editUpdatedClient(updatedAt);
-    // element.querySelector('.column-client__last-change--time').textContent = updatedClient.updateTime;
-    element.querySelector('.column-client__last-change').innerHTML = `
-        ${updatedClient.update}<span class="column-client__date--time">${updatedClient.updateTime}</span>
-    `
-
-    element.querySelectorAll('.column-contacts__icon').forEach(el => {
-        el.remove();
-    });
-
-    const list = element.querySelector('.column-contacts__list');
-    createContactListInTable(contacts, list);
-}
-
 function createContactListInTable(contacts, contactsList) {
     for (let contact of contacts) {
         const contactIcon = document.createElement('li');
         const contactTooltip = document.createElement('div');
         const contactLink = document.createElement('a');
+        const contactSpanType = document.createElement('span');
 
         let contactClass, typeOfLink;
 
@@ -531,25 +583,52 @@ function createContactListInTable(contacts, contactsList) {
 
         contactIcon.classList.add('column-contacts__icon', contactClass);
         contactTooltip.classList.add('column-contacts__tooltip');
+        contactSpanType.classList.add('column-contacts__type');
         contactLink.classList.add('column-contacts__link');
         contactLink.href = `${typeOfLink} ${contact.value}`.trim();
+        contactSpanType.textContent = contact.type + ':';
         contactLink.textContent = contact.value;
 
+        contactTooltip.append(contactSpanType);
         contactTooltip.append(contactLink);
         contactIcon.append(contactTooltip);
         contactsList.append(contactIcon);
     };
 }
 
-function editUpdatedClient(updatedAt) {
-    const updateYear = updatedAt.substr(0, 4);
-    const updateDay = updatedAt.substr(8, 2);
-    const updateMonth = updatedAt.substr(5, 2);
-    const update = updateDay + '.' + updateMonth + '.' + updateYear;
-    const updateTime = updatedAt.substr(11, 5);
+function editDateClient(dateAt) {
+    const dateYear = dateAt.substr(0, 4);
+    const dateDay = dateAt.substr(8, 2);
+    const dateMonth = dateAt.substr(5, 2);
+    const date = dateDay + '.' + dateMonth + '.' + dateYear;
+    const dateTime = dateAt.substr(11, 5);
 
     return {
-        update,
-        updateTime
+        date,
+        dateTime
     };
+}
+
+function sortByProperty(property, direction) {
+    const sortUp = (a, b) => a[property] > b[property] ? 1 : -1;
+    const sortDown = (a, b) => a[property] < b[property] ? 1 : -1;
+    if (direction) {
+        return sortUp;
+    } else return sortDown;
+};
+
+export function onSort(property, fetchData, createTable, btn) {
+    let direction = true;
+    if (btn.classList.contains('sort-up')) direction = !direction;
+
+    cleanTable();
+    loadingAnimated();
+    fetchData().then(clients => {
+        clients.map(el => el.fullName = el.surname + el.name + el.lastName);
+        const sortClient = clients.sort(sortByProperty(property, direction));
+        loadingRemove();
+        createTable(sortClient);
+        btn.classList.toggle('sort-up', direction);
+        btn.querySelector('span').classList.toggle('column-sort-up', direction);
+    });
 }

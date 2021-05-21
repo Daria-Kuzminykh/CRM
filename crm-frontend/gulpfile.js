@@ -50,24 +50,8 @@ const scriptsDev = () => {
         'src/js/**/*.js',
         'src/js/main.js'
     ])
-        .pipe(soursemaps.init())
-        .pipe(soursemaps.write())
         .pipe(dest('dist'))
         .pipe(browserSync.stream())
-}
-
-const scriptsProd = () => {
-    return src([
-        'src/js/comp/**/*.js',
-        'src/js/main.js'
-    ])
-        .pipe(babel({
-            presets: ['@babel/env']
-        }))
-        .pipe(uglify({
-            toplevel: true
-        }).on('error', notify.onError()))
-        .pipe(dest('dist'))
 }
 
 const watchFiles = () => {
@@ -90,10 +74,23 @@ const images = () => {
         .pipe(dest('dist/img'));
 };
 
+const svgSprites = () => {
+    return src('src/img/svg/**/*.svg')
+        .pipe(svgSprite({
+            mode: {
+                stack: {
+                    sprite: '../sprite.svg'
+                }
+            }
+        }))
+        .pipe(dest('dist/img'))
+}
+
 watch('src/**/*.html', htmlMinify);
 watch('src/js/**/*.js', scriptsDev);
 watch('src/styles/**/*.scss', styleDev);
+watch('src/img/svg/**/*.svg', svgSprites);
 
-exports.default = series(clean, fonts, htmlMinify, scriptsDev, styleDev, images, watchFiles);
-exports.dev = series(clean, fonts, fonts, htmlMinify, scriptsDev, styleDev, images, watchFiles);
-exports.prod = series(clean, fonts, htmlMinify, scriptsProd, styleDev, images,);
+exports.default = series(clean, fonts, htmlMinify, scriptsDev, styleDev, images, svgSprites, watchFiles);
+// exports.dev = series(clean, fonts, htmlMinify, scriptsDev, styleDev, images, watchFiles);
+// exports.prod = series(clean, fonts, htmlMinify, scriptsProd, styleDev, images,);

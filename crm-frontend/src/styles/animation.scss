@@ -1,0 +1,71 @@
+@keyframes loading {
+  from {
+    transform: none;
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes modalOpacityTransform {
+  from {
+    transform: translateY(-500px) translateX(-50%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%);
+    opacity: 100%;
+  }
+}
+@keyframes modalOpacity {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 100%;
+  }
+}
+@keyframes modalOpacityReverse {
+  from {
+    opacity: 100%;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes modalOpacityScale {
+  from {
+    transform: scale(1) translateX(-50%);
+    transform-origin: center;
+    opacity: 100%;
+  }
+  to {
+    transform: scaleY(0.01) translateX(-50%);
+    transform-origin: center;
+    opacity: 0;
+  }
+}
+
+@keyframes modalOpacityScale320 {
+  from {
+    transform: scale(1);
+    transform-origin: center;
+    opacity: 100%;
+  }
+  to {
+    transform: scaleY(0.01) ;
+    transform-origin: center;
+    opacity: 0;
+  }
+}
+
+@keyframes modalOpacityTransform320 {
+  from {
+    transform: translateY(-500px) ;
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 100%;
+  }
+}
+

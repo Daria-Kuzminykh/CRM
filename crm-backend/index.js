@@ -104,7 +104,11 @@ function getClientList(params = {}) {
  */
 function createClient(data) {
   const newItem = makeClientFromData(data);
-  newItem.id = Date.now().toString();
+  // newItem.id = Date.now().toString();
+  const dataNow = new Date();
+  const dataOther = new Date(2021, 4, 17, 1, 0, 0, 0);
+  newItem.id = dataNow.getTime() - dataOther.getTime();
+  newItem.id = newItem.id.toString();
   newItem.createdAt = newItem.updatedAt = new Date().toISOString();
   writeFileSync(DB_FILE, JSON.stringify([...getClientList(), newItem]), { encoding: 'utf8' });
   return newItem;

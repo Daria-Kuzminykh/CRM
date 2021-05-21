@@ -67,6 +67,7 @@
   background-color: rgba(0, 0, 0, .7);
   transition: all .3s ease-in-out;
   opacity: 0;
+  z-index: 10;
   &::before {
     @include beforeAfter();
     bottom: -5.5px;

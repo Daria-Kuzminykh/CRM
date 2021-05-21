@@ -37,6 +37,11 @@ body {
   color: $textColorBlack;
 }
 
+.body {
+  padding-bottom: 30px;
+  background-color: $backColor;
+}
+
 .container {
   max-width: $containerMaxWidth;
   margin: 0 auto;
@@ -45,4 +50,31 @@ body {
 
 img {
   max-width: 100%;
+}
+
+.mobil-box {
+  width: 100%;
+}
+
+@media (max-width: $media1024) {
+  .container {
+    max-width: $containerMaxWidth_M1;
+  }
+}
+
+@media (max-width: $media768) {
+  .container {
+    max-width: $containerMaxWidth_M2;
+  }
+}
+
+@media (max-width: $media320) {
+  .container {
+    padding: 30px 15px 0 15px;
+    width: 100%;
+  }
+  .mobil-box {
+    width: 100%;
+    overflow: scroll;
+  }
 }

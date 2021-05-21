@@ -7,6 +7,9 @@ $colorMain: #9873FF;
 $colorGray: #C8C5D1;
 $colorGrayMiddle: #E7E5EB;
 $colorGrayLight: #F4F3F6;
+$colorRed: #F06A4D;
+$colorHoverBtn: #B89EFF;
+$colorClickBtn: #8052FF;
 $marginBtn: ($containerMaxWidth - 216px)/2;
 
 $widthIdColumn: 102px;
@@ -16,3 +19,25 @@ $widthChangeColumn: 173px;
 $widthContactsColumn: 160px;
 
 $tablePaddingLeft: 20px;
+
+$media1024: 1246px;
+$containerMaxWidth_M1: 984px;
+$widthIdColumn_M1: 90px;
+$widthFullNameColumn_M1: 234px;
+$widthDateColumn_M1: 158px;
+$widthChangeColumn_M1: 146px;
+$widthContactsColumn_M1: 150px;
+$marginBtn_M1: ($containerMaxWidth_M1 - 216px)/2;
+
+$media768: 1023px;
+$containerMaxWidth_M2: 728px;
+$widthIdColumn_M2: 80px;
+$widthFullNameColumn_M2: 218px;
+$widthDateColumn_M2: 98px;
+$widthChangeColumn_M2: 98px;
+$widthContactsColumn_M2: 129px;
+$marginBtn_M2: ($containerMaxWidth_M2 - 216px)/2;
+
+$media320: 767px;
+$marginBtn_M3: ($containerMaxWidth_M2 - 216px)/2;
+
